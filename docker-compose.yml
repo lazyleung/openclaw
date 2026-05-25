@@ -38,10 +38,23 @@ services:
       CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY:-}
       CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE:-}
       TZ: ${OPENCLAW_TZ:-UTC}
+      # lazyclaw env
+      NODE_ENV: production
+      NVIDIA_API_KEY: ${NVIDIA_API_KEY}
+      XDG_CONFIG_HOME: ${XDG_CONFIG_HOME}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      BRAVE_API_KEY: ${BRAVE_API_KEY}
+      KIMI_API_KEY: ${KIMI_API_KEY}
+      OBSIDIAN_VAULT_PATH: ${OBSIDIAN_VAULT_PATH}
+      PATH: /home/linuxbrew/.linuxbrew/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     volumes:
       - ${OPENCLAW_CONFIG_DIR:-${HOME:-/tmp}/.openclaw}:/home/node/.openclaw
       - ${OPENCLAW_WORKSPACE_DIR:-${HOME:-/tmp}/.openclaw/workspace}:/home/node/.openclaw/workspace
       - ${OPENCLAW_AUTH_PROFILE_SECRET_DIR:-${HOME:-/tmp}/.openclaw-auth-profile-secrets}:/home/node/.config/openclaw
+      # lazyclaw volume
+      - ${OBSIDIAN_VAULT_PATH}:/home/node/ob-vault
+      - openclaw-data:/home/node
+      - openclaw-cron-spool:/var/spool/cron/crontabs
       ## Uncomment the lines below to enable sandbox isolation
       ## (agents.defaults.sandbox). Requires Docker CLI in the image
       ## (build with --build-arg OPENCLAW_INSTALL_DOCKER_CLI=1) or use
@@ -120,10 +133,43 @@ services:
     volumes:
       - ${OPENCLAW_CONFIG_DIR:-${HOME:-/tmp}/.openclaw}:/home/node/.openclaw
       - ${OPENCLAW_WORKSPACE_DIR:-${HOME:-/tmp}/.openclaw/workspace}:/home/node/.openclaw/workspace
-      - ${OPENCLAW_AUTH_PROFILE_SECRET_DIR:-${HOME:-/tmp}/.openclaw-auth-profile-secrets}:/home/node/.config/openclaw
+      - ${OPENCLAW_AUTH_PROFILE_SECRET_DIR:-${HOME:-/tmp}/.openclaw-auth-profile-secrets}:/home/node/.config/openclawi
+      # lazyclaw volumes
+      - openclaw-data:/home/node
     stdin_open: true
     tty: true
     init: true
     entrypoint: ["node", "dist/index.js"]
     depends_on:
       - openclaw-gateway
+
+  # lazyclaw cron sidecar
+  openclaw-cron:
+    image: ${OPENCLAW_IMAGE}
+    build: .
+    restart: unless-stopped
+    depends_on:
+      - openclaw-gateway
+    user: "root"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      HOME: /home/node
+      NODE_ENV: production
+      # Add any env vars for cronjobs here
+      BRAVE_API_KEY: ${BRAVE_API_KEY}
+      PATH: /home/linuxbrew/.linuxbrew/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    volumes:
+      - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
+      - ${OPENCLAW_WORKSPACE_DIR}:/home/node/.openclaw/workspace
+      - openclaw-data:/home/node
+      - openclaw-cron-spool:/var/spool/cron/crontabs
+    # Starts the cron daemon in the foreground. 
+    command: ["cron", "-f"]
+
+# lazyclaw persistent volumes
+volumes:
+  openclaw-data:
+    external: true
+  openclaw-cron-spool:
