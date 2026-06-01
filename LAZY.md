@@ -1,4 +1,4 @@
-Deployment insctructions for lazyleung's OpenClaw docker setup
+Deployment instructions for lazyleung's OpenClaw docker setup
 
 ## Changes
 - Runs on Ubuntu Server LTS (24) VPS
@@ -7,6 +7,5 @@ Deployment insctructions for lazyleung's OpenClaw docker setup
 - Adds read-only obsidian notes access
 
 ## Setup
-- `git fetch --tags upstreamgit fetch --tags upstream`
-- `git switch tags/<tag_name>`
-
+- `git fetch --tags upstream`
+- `git checkout tags/<tag_name>`
