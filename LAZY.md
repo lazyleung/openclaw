@@ -8,4 +8,6 @@ Deployment instructions for lazyleung's OpenClaw docker setup
 
 ## Setup
 - `git fetch --tags upstream`
-- `git checkout tags/<tag_name>`
+- `git checkout tags/v<tag_version>`
+- `git switch -c lazyclaw-v<tag_version>`
+- `git cherry-pick <commit_hash>`
