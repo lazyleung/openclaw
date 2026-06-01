@@ -18,3 +18,4 @@ Build and upload image to server
 - `docker save -o lazyclaw.tar lazyclaw:latest`
 - Use powershell to access 1password ssh key `scp lazyclaw.tar <user>@<ip>:~`
 - `docker load -i ~/lazyclaw.tar`
+- `docker compose up -d --no-build`
