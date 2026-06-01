@@ -6,8 +6,14 @@ Deployment instructions for lazyleung's OpenClaw docker setup
 - Adds persistent storage
 - Adds read-only obsidian notes access
 
-## Setup
+## Scenarios
+Checkout latest release tag and replay changes on top
 - `git fetch --tags upstream`
 - `git checkout tags/v<tag_version>`
 - `git switch -c lazyclaw-v<tag_version>`
-- `git cherry-pick <commit_hash>`
+- `git cherry-pick <commit_hash>` (TODO Look into squashing changes)
+Build and upload image to server
+- Set OPENCLAW_IMAGE env to `lazyclaw:latest`
+- `docker compose build`
+- `docker save -o lazyclaw.tar lazyclaw:latest`
+- Use powershell to access 1password ssh key `scp lazyclaw.tar <user>@<ip>:~`
